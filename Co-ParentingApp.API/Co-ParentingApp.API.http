@@ -1,0 +1,6 @@
+@Co_ParentingApp.API_HostAddress = http://localhost:5096
+
+GET {{Co_ParentingApp.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
