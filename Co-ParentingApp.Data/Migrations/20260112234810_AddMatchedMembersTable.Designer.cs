@@ -3,6 +3,7 @@ using System;
 using Co_ParentingApp.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Co_ParentingApp.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260112234810_AddMatchedMembersTable")]
+    partial class AddMatchedMembersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,21 +88,17 @@ namespace Co_ParentingApp.Data.Migrations
 
             modelBuilder.Entity("Co_ParentingApp.Data.Models.EntityModels.MatchedMemberEntity", b =>
                 {
-                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", "MatchedMember")
+                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", null)
                         .WithMany()
                         .HasForeignKey("MatchedMemberId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", "MatchingMember")
+                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", null)
                         .WithMany()
                         .HasForeignKey("MatchingMemberId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("MatchedMember");
-
-                    b.Navigation("MatchingMember");
                 });
 #pragma warning restore 612, 618
         }

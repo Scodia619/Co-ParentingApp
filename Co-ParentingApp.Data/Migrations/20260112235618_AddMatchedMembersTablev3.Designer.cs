@@ -3,6 +3,7 @@ using System;
 using Co_ParentingApp.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Co_ParentingApp.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260112235618_AddMatchedMembersTablev3")]
+    partial class AddMatchedMembersTablev3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,12 +37,22 @@ namespace Co_ParentingApp.Data.Migrations
                     b.Property<Guid>("MatchedMemberId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("MatchedMemberId1")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("MatchingMemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MatchingMemberId1")
                         .HasColumnType("uuid");
 
                     b.HasKey("MatchId");
 
                     b.HasIndex("MatchedMemberId");
+
+                    b.HasIndex("MatchedMemberId1");
+
+                    b.HasIndex("MatchingMemberId1");
 
                     b.HasIndex("MatchingMemberId", "MatchedMemberId")
                         .IsUnique();
@@ -85,16 +98,28 @@ namespace Co_ParentingApp.Data.Migrations
 
             modelBuilder.Entity("Co_ParentingApp.Data.Models.EntityModels.MatchedMemberEntity", b =>
                 {
-                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", "MatchedMember")
+                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", null)
                         .WithMany()
                         .HasForeignKey("MatchedMemberId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", "MatchingMember")
+                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", "MatchedMember")
+                        .WithMany()
+                        .HasForeignKey("MatchedMemberId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", null)
                         .WithMany()
                         .HasForeignKey("MatchingMemberId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Co_ParentingApp.Data.Models.EntityModels.MemberEntity", "MatchingMember")
+                        .WithMany()
+                        .HasForeignKey("MatchingMemberId1")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("MatchedMember");

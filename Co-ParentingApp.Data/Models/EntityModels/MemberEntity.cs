@@ -1,5 +1,4 @@
-﻿namespace Co_ParentingApp.Data.Models.EntityModels
-{
+﻿namespace Co_ParentingApp.Data.Models.EntityModels;
     public class MemberEntity
     {
         public Guid Id { get; set; }
@@ -9,4 +8,3 @@
         public string Password { get; set; } = string.Empty;
         public string PairingKey { get; set; } = string.Empty;
     }
-}
