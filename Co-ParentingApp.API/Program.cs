@@ -8,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Configuration.SetBasePath(AppContext.BaseDirectory)
+                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
 builder.Services
     .AddCoParentingAppApi()
     .AddCoParentingAppApplication()
