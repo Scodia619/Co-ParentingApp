@@ -1,4 +1,7 @@
-﻿using Co_ParentingApp.Application.Member;
+﻿using Co_ParentingApp.Application.Conversation;
+using Co_ParentingApp.Application.ConversationMembers;
+using Co_ParentingApp.Application.Member;
+using Co_ParentingApp.Data.Models.EntityModels;
 using Co_ParentingApp.Data.Models.Records;
 using Co_ParentingApp.Data.Models.RequestModels.MatchedMembers;
 
@@ -7,13 +10,20 @@ internal sealed class MatchedMembersService : IMatchedMembersService
 {
     private readonly IMemberRepository _memberRepository;
     private readonly IMatchedMembersRepository _matchedMembersRepository;
+    private readonly IConversationRepository _conversationRepository;
+    private readonly IConversationMemberRepository _conversationMemberRepository;
     private readonly IMatchedMemberMapper _matchedMemberMapper;
+    private readonly IConversationMemberMapper _conversationMemberMapper;
 
-    public MatchedMembersService(IMemberRepository memberRepository, IMatchedMembersRepository matchedMembersRepository, IMatchedMemberMapper matchedMemberMapper)
+    public MatchedMembersService(IMemberRepository memberRepository, IMatchedMembersRepository matchedMembersRepository, IMatchedMemberMapper matchedMemberMapper,
+        IConversationRepository conversationRepository, IConversationMemberRepository conversationMemberRepository, IConversationMemberMapper conversationMemberMapper)
     {
         _memberRepository = memberRepository;
         _matchedMembersRepository = matchedMembersRepository;
         _matchedMemberMapper = matchedMemberMapper;
+        _conversationRepository = conversationRepository;
+        _conversationMemberMapper = conversationMemberMapper;
+        _conversationMemberRepository = conversationMemberRepository;
     }
 
     public async Task<MatchedMemberRecord> CreateMatchedMembersAsync(CreateMatchedMembersRequest request)
@@ -33,6 +43,13 @@ internal sealed class MatchedMembersService : IMatchedMembersService
         if (matchedCheck != null) throw new AlreadyMatchedException("Already Matched");
 
         var entity = await _matchedMembersRepository.CreateMatchedMembersAsync(_matchedMemberMapper.MapToEntity(matchingMember.Id, matchedMember.Id));
+
+        var conversation = new ConversationEntity();
+
+        var conversationResult = await _conversationRepository.CreateConversationAsync(conversation);
+
+        await _conversationMemberRepository.CreateConversationMembersAsync(_conversationMemberMapper.MapToEntity(conversationResult.ConversationId, matchedMember.Id));
+        await _conversationMemberRepository.CreateConversationMembersAsync(_conversationMemberMapper.MapToEntity(conversationResult.ConversationId, matchingMember.Id));
 
         return _matchedMemberMapper.MapToRecord(entity);
     }
