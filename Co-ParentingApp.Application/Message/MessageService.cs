@@ -1,6 +1,7 @@
 ﻿using Co_ParentingApp.Application.Conversation;
 using Co_ParentingApp.Application.ConversationMembers;
 using Co_ParentingApp.Data.Models.Records;
+using Co_ParentingApp.Data.Models.RequestModels;
 using Co_ParentingApp.Data.Models.RequestModels.Message;
 
 namespace Co_ParentingApp.Application.Message;
@@ -23,9 +24,7 @@ public class MessageService : IMessageService
 
     public async Task<MessageRecord> CreateMessageAsync(CreateMessageRequest request)
     {
-        var memberCheck = await _conversationMemberRepository.GetConversationMembersByMemberIdAndConversationId(request.SenderId, request.ConversationId);
-
-        if (memberCheck == null) throw new NotFoundException("Member not in conversation");
+        await CheckConversationAuth(request.SenderId, request.ConversationId);
 
         var message = _messageMapper.MapToEntity(request);
         
@@ -36,9 +35,25 @@ public class MessageService : IMessageService
         return _messageMapper.MapToRecord(messageResult);
     }
 
+    public async Task<IReadOnlyCollection<MessageRecord>> GetPaginatedMessagesByConversationIdAsync(GetMessageRequest request)
+    {
+        await CheckConversationAuth(request.MemberId, request.ConversationId);
+
+        var messages = await _messageRepository.GetPaginatedMessagesByConversationIdAsync(request.ConversationId, request.CreatedAt);
+
+        return messages.Select(message => _messageMapper.MapToRecord(message)).ToList();
+    }
+
     public async Task<MessageRecord?> GetMessageById(Guid messageId)
     {
         var message = await _messageRepository.GetMessageById(messageId);
         return _messageMapper.MapToRecord(message);
+    }
+
+    internal async Task CheckConversationAuth(Guid senderId, Guid conversationId)
+    {
+        var memberCheck = await _conversationMemberRepository.GetConversationMembersByMemberIdAndConversationId(senderId, conversationId);
+
+        if (memberCheck == null) throw new NotFoundException("Member not in conversation");
     }
 }

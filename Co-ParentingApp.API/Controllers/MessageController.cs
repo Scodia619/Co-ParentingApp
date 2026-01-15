@@ -1,5 +1,6 @@
 ﻿using Co_ParentingApp.API.Mappers.Message;
 using Co_ParentingApp.Application.Message;
+using Co_ParentingApp.Data.Models.RequestModels;
 using Co_ParentingApp.Data.Models.RequestModels.Message;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,5 +50,17 @@ public class MessageController : ControllerBase
         if (message == null)
             return NotFound();
         return Ok(_messageMapper.MapToModel(message));
+    }
+
+    [HttpPost("GetMessagesByConversation")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetPaginatedMessagesByConversationIdAsync(GetMessageRequest request)
+    {
+        var messages = await _messageService.GetPaginatedMessagesByConversationIdAsync(request);
+        if (messages == null)
+            return NotFound();
+        return Ok(messages.Select(message => _messageMapper.MapToModel(message)).ToList());
     }
 }

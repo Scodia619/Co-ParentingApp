@@ -24,4 +24,18 @@ public class MessageRepository : IMessageRepository
     {
         return await _dbContext.Message.Where(x => x.MessageId == messageId).FirstOrDefaultAsync();
     }
+
+    public async Task<IReadOnlyCollection<MessageEntity>> GetPaginatedMessagesByConversationIdAsync(Guid conversationId, DateTime? before = null, int pageSize = 20)
+    {
+        var query = _dbContext.Message.Where(m => m.ConversationId == conversationId);
+
+        if (before.HasValue)
+        {
+            query = query.Where(m => m.CreatedAt < before.Value);
+        }
+
+        query = query.OrderByDescending(m => m.CreatedAt);
+
+        return await query.Take(pageSize).Include(m => m.Sender).ToListAsync();
+    }
 }
