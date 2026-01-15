@@ -10,6 +10,9 @@ public class AppDbContext : DbContext
 
     public DbSet<MemberEntity> Member { get; set; }
     public DbSet<MatchedMemberEntity> MatchedMembers { get; set; }
+    public DbSet<MessageEntity> Message { get; set; }
+    public DbSet<ConversationEntity> Conversation { get; set; }
+    public DbSet<ConversationMembersEntity> ConversationMembers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
