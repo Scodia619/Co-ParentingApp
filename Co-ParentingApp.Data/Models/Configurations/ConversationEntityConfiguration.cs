@@ -12,10 +12,11 @@ public class ConversationEntityConfiguration : IEntityTypeConfiguration<Conversa
         builder.Property(c => c.CreatedAt).IsRequired();
 
         builder.Property(c => c.LastMessage)
-               .HasMaxLength(500);
+                .IsRequired(false)
+                .HasMaxLength(500);
 
         builder.Property(c => c.LastMessageAt)
-               .IsRequired();
+            .IsRequired(false);
 
         builder.HasMany(c => c.Members)
                .WithOne(cm => cm.Conversation)

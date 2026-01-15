@@ -2,10 +2,10 @@
 
 public class ConversationMembersEntity
 {
-    public Guid ConversationMemberId { get; set; }
+    public Guid ConversationMemberId { get; set; } = Guid.NewGuid();
     public Guid ConversationId { get; set; }
     public Guid MemberId { get; set; }
-    public DateTime JoinedAt { get; set; }
+    public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 
     public ConversationEntity Conversation { get; set; }
     public MemberEntity Member { get; set; }
