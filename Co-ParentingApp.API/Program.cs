@@ -2,12 +2,14 @@ using Co_ParentingApp.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Co_ParentingApp.Application.Microsoft.Extensions.DependencyInjection;
 using Co_ParentingApp.Infrastructure.Microsoft.Extensions.DependencyInjection;
+using Co_ParentingApp.API.Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services
+    .AddCoParentingAppApi()
     .AddCoParentingAppApplication()
     .AddCoParentingAppInfrastructure();
 
