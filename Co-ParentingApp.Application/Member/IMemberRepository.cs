@@ -7,6 +7,7 @@ namespace Co_ParentingApp.Application.Member
         Task<MemberEntity> CreateMemberAsync(MemberEntity user);
         Task<IEnumerable<MemberEntity>> GetUserByUsernameOrEmail(string email, string username);
         Task<MemberEntity?> GetMemberAsync(Guid memberId);
+        Task<MemberEntity?> GetMemberByPairingCodeAsync(string pairingKey);
         Task<MemberEntity?> LoginUserAsync(string username);
     }
 }

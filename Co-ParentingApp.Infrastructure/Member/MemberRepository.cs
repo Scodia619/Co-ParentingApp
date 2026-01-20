@@ -32,6 +32,11 @@ public class MemberRepository : IMemberRepository
         return await _dbContext.Member.Where(x => x.Id == memberId).FirstOrDefaultAsync();
     }
 
+    public async Task<MemberEntity?> GetMemberByPairingCodeAsync(string pairingKey)
+    {
+        return await _dbContext.Member.Where(x => x.PairingKey == pairingKey).FirstOrDefaultAsync();
+    }
+
     public async Task<MemberEntity?> LoginUserAsync(string username)
     {
         return await _dbContext.Member.Where(x => x.Username == username).FirstOrDefaultAsync();

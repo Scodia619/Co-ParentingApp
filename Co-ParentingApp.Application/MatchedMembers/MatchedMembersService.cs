@@ -32,7 +32,7 @@ internal sealed class MatchedMembersService : IMatchedMembersService
 
         if (matchingMember == null) throw new NotFoundException("Matching Member Not Found");
 
-        var matchedMember = await _memberRepository.GetMemberAsync(request.MatchedId);
+        var matchedMember = await _memberRepository.GetMemberByPairingCodeAsync(request.PairingKey);
 
         if (matchedMember == null) throw new NotFoundException("Matched Member Not Found");
 
