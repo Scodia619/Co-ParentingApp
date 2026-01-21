@@ -1,4 +1,5 @@
-﻿using Co_ParentingApp.Application.ConversationMembers;
+﻿using Co_ParentingApp.Application.Conversation;
+using Co_ParentingApp.Application.ConversationMembers;
 using Co_ParentingApp.Application.MatchedMembers;
 using Co_ParentingApp.Application.Member;
 using Co_ParentingApp.Application.Message;
@@ -30,7 +31,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddConversation(this IServiceCollection services)
     {
         return services
+            .AddTransient<IConversationService, ConversationService>()
             .AddTransient<IConversationMemberMapper, ConversationMemberMapper>()
+            .AddTransient<IConversationMapper, ConversationMapper>()
             .AddTransient<IMessageService, MessageService>()
             .AddTransient<IMessageMapper, MessageMapper>();
     }

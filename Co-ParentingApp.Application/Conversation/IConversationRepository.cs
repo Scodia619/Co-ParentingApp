@@ -6,5 +6,6 @@ public interface IConversationRepository
 {
     Task<ConversationEntity> CreateConversationAsync(ConversationEntity conversation);
     Task UpdateLastMessageByConversationId(Guid conversationId, string content, DateTime time);
+    Task<IReadOnlyCollection<ConversationReturnEntity>?> GetConversationsByMemberIdAsync(Guid memberId);
 }
 
