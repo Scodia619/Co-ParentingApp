@@ -26,7 +26,7 @@ public class ConversationsController : ControllerBase
         {
             var conversations = await _conversationService.GetConversationsByMemberIdAsync(memberId);
 
-            if (conversations == null) return NotFound();
+            if (!conversations.Any()) return NotFound();
 
             return Ok(conversations);
         }catch (Exception ex)
