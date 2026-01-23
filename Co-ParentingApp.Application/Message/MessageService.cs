@@ -1,5 +1,6 @@
 ﻿using Co_ParentingApp.Application.Conversation;
 using Co_ParentingApp.Application.ConversationMembers;
+using Co_ParentingApp.Application.Realtime;
 using Co_ParentingApp.Data.Models.Records;
 using Co_ParentingApp.Data.Models.RequestModels;
 using Co_ParentingApp.Data.Models.RequestModels.Message;
@@ -8,18 +9,20 @@ namespace Co_ParentingApp.Application.Message;
 
 public class MessageService : IMessageService
 {
+    private readonly IChatNotifier _chatNotifier;
     private readonly IMessageMapper _messageMapper;
     private readonly IMessageRepository _messageRepository;
     private readonly IConversationMemberRepository _conversationMemberRepository;
     private readonly IConversationRepository _conversationRepository;
 
     public MessageService(IMessageMapper messageMapper, IMessageRepository messageRepository, IConversationMemberRepository conversationMemberRepository,
-        IConversationRepository conversationRepository)
+        IConversationRepository conversationRepository, IChatNotifier chatNotifier)
     {
         _messageMapper = messageMapper;
         _messageRepository = messageRepository;
         _conversationMemberRepository = conversationMemberRepository;
         _conversationRepository = conversationRepository;
+        _chatNotifier = chatNotifier;
     }
 
     public async Task<MessageRecord> CreateMessageAsync(CreateMessageRequest request)
@@ -32,7 +35,11 @@ public class MessageService : IMessageService
 
         await _conversationRepository.UpdateLastMessageByConversationId(messageResult.ConversationId, messageResult.Content, messageResult.CreatedAt);
 
-        return _messageMapper.MapToRecord(messageResult);
+        var record = _messageMapper.MapToRecord(messageResult);
+
+        await _chatNotifier.MessageSentAsync(messageResult.ConversationId, record);
+
+        return record;
     }
 
     public async Task<IReadOnlyCollection<MessageRecord>> GetPaginatedMessagesByConversationIdAsync(GetMessageRequest request)

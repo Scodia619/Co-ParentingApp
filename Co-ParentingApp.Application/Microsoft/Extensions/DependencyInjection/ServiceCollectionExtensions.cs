@@ -11,24 +11,24 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCoParentingAppApplication(this IServiceCollection services) =>
         services
-            .AddConversation()
-            .AddMembers()
-            .AddMatchedMembers();
+            .AddConversations()
+            .AddMember()
+            .AddMatchedMember();
 
-    public static IServiceCollection AddMembers(this IServiceCollection services)
+    public static IServiceCollection AddMember(this IServiceCollection services)
     {
         return services
             .AddTransient<IMemberService, MemberService>();
     }
 
-    public static IServiceCollection AddMatchedMembers(this IServiceCollection services)
+    public static IServiceCollection AddMatchedMember(this IServiceCollection services)
     {
         return services
             .AddTransient<IMatchedMembersService, MatchedMembersService>()
             .AddTransient<IMatchedMemberMapper, MatchedMemberMapper>();
     }
 
-    public static IServiceCollection AddConversation(this IServiceCollection services)
+    public static IServiceCollection AddConversations(this IServiceCollection services)
     {
         return services
             .AddTransient<IConversationService, ConversationService>()

@@ -4,6 +4,7 @@ using Co_ParentingApp.Application.Microsoft.Extensions.DependencyInjection;
 using Co_ParentingApp.Infrastructure.Microsoft.Extensions.DependencyInjection;
 using Co_ParentingApp.API.Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Co_ParentingApp.API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,11 +19,18 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy
+            .WithOrigins(
+                "http://localhost:8081",
+                "http://localhost:19006"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
+
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -71,5 +79,6 @@ app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/api/chathub");
 
 app.Run();
