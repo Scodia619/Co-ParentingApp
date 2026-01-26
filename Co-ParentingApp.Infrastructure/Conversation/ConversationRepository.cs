@@ -33,25 +33,37 @@ public class ConversationRepository : IConversationRepository
     public async Task<IReadOnlyCollection<ConversationReturnEntity>?> GetConversationsByMemberIdAsync(Guid memberId)
     {
         return await _dbContext.Conversation
-        .Where(c => c.Members.Any(cm => cm.MemberId == memberId))
-        .Select(c => new ConversationReturnEntity
-        {
-            ConversationId = c.ConversationId,
+            .Where(c => c.Members.Any(cm => cm.MemberId == memberId))
+            .Select(c => new ConversationReturnEntity
+            {
+                ConversationId = c.ConversationId,
 
-            ParticipantId = c.Members
-                .Where(cm => cm.MemberId != memberId)
-                .Select(cm => cm.Member.Id)
-                .FirstOrDefault(),
+                ParticipantId = c.Members
+                    .Where(cm => cm.MemberId != memberId)
+                    .Select(cm => cm.Member.Id)
+                    .FirstOrDefault(),
 
-            ParticipantName = c.Members
-                .Where(cm => cm.MemberId != memberId)
-                .Select(cm => cm.Member.Username)
-                .FirstOrDefault(),
+                ParticipantName = c.Members
+                    .Where(cm => cm.MemberId != memberId)
+                    .Select(cm => cm.Member.Username)
+                    .FirstOrDefault(),
 
-            LastMessage = c.LastMessage,
-            LastMessageAt = c.LastMessageAt
-        })
-        .OrderByDescending(c => c.LastMessageAt)
-        .ToListAsync();
+                LastMessage = c.LastMessage,
+                LastMessageAt = c.LastMessageAt,
+
+                UnreadCount = c.Messages
+                    .Count(m => m.SenderId != memberId &&
+                                c.Members
+                                 .Where(cm => cm.MemberId == memberId)
+                                 .Select(cm => cm.LastReadAt)
+                                 .FirstOrDefault() == null
+                                 || m.CreatedAt > c.Members
+                                                .Where(cm => cm.MemberId == memberId)
+                                                .Select(cm => cm.LastReadAt)
+                                                .FirstOrDefault())
+            })
+            .OrderByDescending(c => c.LastMessageAt)
+            .ToListAsync();
     }
+
 }

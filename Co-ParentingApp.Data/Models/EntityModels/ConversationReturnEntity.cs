@@ -6,4 +6,5 @@ public class ConversationReturnEntity
     public string ParticipantName { get; set; }
     public string? LastMessage { get; set; }
     public DateTime? LastMessageAt { get; set; }
+    public int? UnreadCount { get; set; }
 }

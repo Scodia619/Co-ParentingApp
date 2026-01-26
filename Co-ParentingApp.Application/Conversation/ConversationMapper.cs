@@ -13,7 +13,8 @@ public class ConversationMapper : IConversationMapper
             ParticipantId = entity.ParticipantId,
             ParticipantName = entity.ParticipantName,
             LastMessage = entity.LastMessage,
-            LastMessageAt = entity.LastMessageAt
+            LastMessageAt = entity.LastMessageAt,
+            UnreadCount = entity.UnreadCount
         };
     }
 

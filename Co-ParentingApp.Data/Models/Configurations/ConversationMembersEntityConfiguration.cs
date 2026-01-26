@@ -14,6 +14,7 @@ public class ConversationMembersEntityConfiguration : IEntityTypeConfiguration<C
         builder.Property(cm => cm.ConversationId).IsRequired();
         builder.Property(cm => cm.MemberId).IsRequired();
         builder.Property(cm => cm.JoinedAt).IsRequired();
+        builder.Property(cm => cm.LastReadAt).IsRequired(false);
 
         builder.HasOne(cm => cm.Conversation)
                .WithMany(c => c.Members)
