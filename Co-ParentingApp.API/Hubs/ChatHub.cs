@@ -14,5 +14,10 @@ public class ChatHub : Hub
     {
         await Clients.Group(conversationId)
             .SendAsync("ReceiveMessage", message);
+
+        await Clients.All.SendAsync("MessageReceived", new
+        {
+            ConversationId = conversationId
+        });
     }
 }

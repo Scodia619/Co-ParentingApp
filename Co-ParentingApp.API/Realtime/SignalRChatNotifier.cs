@@ -19,5 +19,12 @@ public class SignalRChatNotifier : IChatNotifier
         await _hubContext.Clients
             .Group(conversationId.ToString())
             .SendAsync("ReceiveMessage", message);
+
+        await _hubContext.Clients
+        .All
+        .SendAsync("MessageReceived", new
+        {
+            ConversationId = conversationId.ToString()
+        });
     }
 }
