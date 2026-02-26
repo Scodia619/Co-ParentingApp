@@ -6,6 +6,7 @@ public interface IMessageRepository
 {
     Task<MessageEntity> CreateMessageAsync(MessageEntity message);
     Task<MessageEntity?> GetMessageById(Guid messageId);
-    Task<IReadOnlyCollection<MessageEntity>> GetPaginatedMessagesByConversationIdAsync(Guid conversationId, DateTime? before = null, int pageSize = 20);
+    Task<IReadOnlyCollection<MessageEntity>> GetMessagesByConversationIdAsync(Guid conversationId);
+    Task<DateTime> GetLastMessageAsync(Guid conversationId);
 }
 

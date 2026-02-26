@@ -1,6 +1,7 @@
 ﻿using Co_ParentingApp.Application.Conversation;
 using Co_ParentingApp.Application.ConversationMembers;
 using Co_ParentingApp.Application.Realtime;
+using Co_ParentingApp.Application.Redis;
 using Co_ParentingApp.Data.Models.Records;
 using Co_ParentingApp.Data.Models.RequestModels;
 using Co_ParentingApp.Data.Models.RequestModels.Message;
@@ -14,15 +15,17 @@ public class MessageService : IMessageService
     private readonly IMessageRepository _messageRepository;
     private readonly IConversationMemberRepository _conversationMemberRepository;
     private readonly IConversationRepository _conversationRepository;
+    private readonly IRedisService _redisService;
 
     public MessageService(IMessageMapper messageMapper, IMessageRepository messageRepository, IConversationMemberRepository conversationMemberRepository,
-        IConversationRepository conversationRepository, IChatNotifier chatNotifier)
+        IConversationRepository conversationRepository, IChatNotifier chatNotifier, IRedisService redisService)
     {
         _messageMapper = messageMapper;
         _messageRepository = messageRepository;
         _conversationMemberRepository = conversationMemberRepository;
         _conversationRepository = conversationRepository;
         _chatNotifier = chatNotifier;
+        _redisService = redisService;
     }
 
     public async Task<MessageRecord> CreateMessageAsync(CreateMessageRequest request)
@@ -46,9 +49,34 @@ public class MessageService : IMessageService
     {
         await CheckConversationAuth(request.MemberId, request.ConversationId);
 
-        var messages = await _messageRepository.GetPaginatedMessagesByConversationIdAsync(request.ConversationId, request.CreatedAt);
+        var redisKey = $"messages-{request.ConversationId}-{request.MemberId}";
+        var messages = await _redisService.GetAsync<IReadOnlyCollection<MessageRecord>>(redisKey);
 
-        return messages.Select(message => _messageMapper.MapToRecord(message)).ToList();
+        if (messages == null)
+        {
+            messages = await GetNewMessages(request.ConversationId, redisKey);
+        }
+
+        var latestCachedMessageTime = messages.Max(m => m.CreatedAt);
+        var lastMessageTime = await _messageRepository.GetLastMessageAsync(request.ConversationId);
+
+        if (latestCachedMessageTime >= lastMessageTime)
+        {
+            return messages;
+        }
+
+        messages = await GetNewMessages(request.ConversationId, redisKey);
+
+        var before = request.Before ?? DateTime.UtcNow;
+
+        return messages
+            .GroupBy(m => m.MessageId)
+            .Select(g => g.First())
+            .Where(m => m.CreatedAt < before)
+            .OrderByDescending(m => m.CreatedAt)
+            .Take(20)
+            .ToList()
+            .AsReadOnly();
     }
 
     public async Task<MessageRecord?> GetMessageById(Guid messageId)
@@ -62,5 +90,13 @@ public class MessageService : IMessageService
         var memberCheck = await _conversationMemberRepository.GetConversationMembersByMemberIdAndConversationId(senderId, conversationId);
 
         if (memberCheck == null) throw new NotFoundException("Member not in conversation");
+    }
+
+    internal async Task<IReadOnlyCollection<MessageRecord>> GetNewMessages(Guid conversationId, string redisKey)
+    {
+        var newMessages = await _messageRepository.GetMessagesByConversationIdAsync(conversationId);
+        var newMessageRecords = newMessages.Select(message => _messageMapper.MapToRecord(message)).ToList();
+        await _redisService.SetAsync<IReadOnlyCollection<MessageRecord>>(redisKey, newMessageRecords, TimeSpan.FromMinutes(5));
+        return newMessageRecords;
     }
 }
