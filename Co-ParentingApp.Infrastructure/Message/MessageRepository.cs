@@ -1,4 +1,5 @@
 ﻿using Co_ParentingApp.Application.Message;
+using Co_ParentingApp.Application.Redis;
 using Co_ParentingApp.Data.DbContexts;
 using Co_ParentingApp.Data.Models.EntityModels;
 using Microsoft.EntityFrameworkCore;
@@ -25,17 +26,18 @@ public class MessageRepository : IMessageRepository
         return await _dbContext.Message.Where(x => x.MessageId == messageId).FirstOrDefaultAsync();
     }
 
-    public async Task<IReadOnlyCollection<MessageEntity>> GetPaginatedMessagesByConversationIdAsync(Guid conversationId, DateTime? before = null, int pageSize = 20)
+    public async Task<IReadOnlyCollection<MessageEntity>> GetMessagesByConversationIdAsync(Guid conversationId)
     {
         var query = _dbContext.Message.Where(m => m.ConversationId == conversationId);
 
-        if (before.HasValue)
-        {
-            query = query.Where(m => m.CreatedAt < before.Value);
-        }
+        var result = await query.ToListAsync();
+        return result;
+    }
 
-        query = query.OrderByDescending(m => m.CreatedAt);
+    public async Task<DateTime> GetLastMessageAsync(Guid conversationId)
+    {
+        var message = await _dbContext.Message.Where(m => m.ConversationId == conversationId).OrderByDescending(m => m.CreatedAt).FirstOrDefaultAsync();
 
-        return await query.Take(pageSize).Include(m => m.Sender).ToListAsync();
+        return message.CreatedAt;
     }
 }

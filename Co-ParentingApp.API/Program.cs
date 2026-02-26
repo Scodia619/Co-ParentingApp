@@ -5,6 +5,7 @@ using Co_ParentingApp.Infrastructure.Microsoft.Extensions.DependencyInjection;
 using Co_ParentingApp.API.Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Co_ParentingApp.API.Hubs;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,13 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration["Redis:ConnectionString"];
+
+    return ConnectionMultiplexer.Connect(connectionString);
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

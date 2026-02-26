@@ -34,7 +34,7 @@ public class MessageController : ControllerBase
                 new { messageId = message.MessageId },
                 _messageMapper.MapToModel(message));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return BadRequest(ex.Message);
         }
@@ -56,7 +56,7 @@ public class MessageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetPaginatedMessagesByConversationIdAsync(GetMessageRequest request)
+    public async Task<IActionResult> GetPaginatedMessagesByConversationIdAsync([FromBody] GetMessageRequest request)
     {
         var messages = await _messageService.GetPaginatedMessagesByConversationIdAsync(request);
         if (messages == null)

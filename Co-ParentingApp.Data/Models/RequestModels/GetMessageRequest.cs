@@ -5,5 +5,6 @@ public class GetMessageRequest
     public Guid ConversationId { get; set; }
     public Guid MemberId { get; set; }
     public DateTime? CreatedAt { get; set; }
+    public DateTime? Before { get; set; }
 }
 
