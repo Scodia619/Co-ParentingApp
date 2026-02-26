@@ -30,8 +30,6 @@ public class MessageRepository : IMessageRepository
     {
         var query = _dbContext.Message.Where(m => m.ConversationId == conversationId);
 
-        query = query.OrderByDescending(m => m.CreatedAt);
-
         var result = await query.ToListAsync();
         return result;
     }

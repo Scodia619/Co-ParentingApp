@@ -60,23 +60,23 @@ public class MessageService : IMessageService
         var latestCachedMessageTime = messages.Max(m => m.CreatedAt);
         var lastMessageTime = await _messageRepository.GetLastMessageAsync(request.ConversationId);
 
-        if (latestCachedMessageTime >= lastMessageTime)
+        if (latestCachedMessageTime <= lastMessageTime)
         {
-            return messages;
+            messages = await GetNewMessages(request.ConversationId, redisKey);
         }
 
-        messages = await GetNewMessages(request.ConversationId, redisKey);
+        if (request.Before.HasValue)
+        {
+            messages = messages.Where(m => m.CreatedAt < request.Before.Value).ToList();
+        }
 
-        var before = request.Before ?? DateTime.UtcNow;
-
-        return messages
-            .GroupBy(m => m.MessageId)
-            .Select(g => g.First())
-            .Where(m => m.CreatedAt < before)
+        messages = messages
             .OrderByDescending(m => m.CreatedAt)
             .Take(20)
             .ToList()
             .AsReadOnly();
+
+        return messages;
     }
 
     public async Task<MessageRecord?> GetMessageById(Guid messageId)
